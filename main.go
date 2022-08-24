@@ -1,16 +1,28 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/renbw/cargo/handler"
 
 	// mod file define the base package name eg `github.com/renbw/cargo`
 	// `componert` is the sub package name
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	BIND_ADDR    = "0.0.0.0"
+	PORT         = 8080
+	WAIT_TIMEOUT = time.Second * 5
 )
 
 func main() {
@@ -18,12 +30,36 @@ func main() {
 	gin.SetMode(gin.DebugMode)
 	engine := configEngine()
 
-	engine.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	engine.Run(":8080")
+	v1 := engine.Group("/v1")
+	{
+		v1.GET("/ping", handler.Ping)
+	}
+
+	srv := &http.Server{Addr: fmt.Sprintf("%s:%d", BIND_ADDR, PORT), Handler: engine}
+	// start in one gorotine
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal("server start failed", err)
+		}
+	}()
+	// wait signal to stop
+	log.Info("server start at " + BIND_ADDR + "")
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	// shutdown gracefully
+
+	ctx, cancel := context.WithTimeout(context.Background(), WAIT_TIMEOUT)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("show down server failed", err)
+	}
+	<-ctx.Done()
+	log.Info("time out")
+	log.Info("server exit")
+	os.Exit(0)
 }
 
 // logrus config
