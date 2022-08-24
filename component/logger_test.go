@@ -37,3 +37,8 @@ func TestDockerCli(t *testing.T) {
 		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
 	}
 }
+
+
+func TestQuery(t *testing.T) {
+	SingleQuery()
+}
