@@ -25,8 +25,12 @@ const (
 	WAIT_TIMEOUT = time.Second * 5
 )
 
-func main() {
+func init() {
+	// init logrus
 	configLog()
+}
+
+func main() {
 	gin.SetMode(gin.DebugMode)
 	engine := configEngine()
 
