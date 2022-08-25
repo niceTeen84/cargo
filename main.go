@@ -13,6 +13,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/renbw/cargo/handler"
+	"github.com/renbw/cargo/initialize"
 
 	// mod file define the base package name eg `github.com/renbw/cargo`
 	// `componert` is the sub package name
@@ -31,6 +32,9 @@ func init() {
 }
 
 func main() {
+	conf := initialize.InitConfig()
+	host := conf.GetString("datasource.mysql.host")
+	log.Info("host ", host)
 	gin.SetMode(gin.DebugMode)
 	engine := configEngine()
 
