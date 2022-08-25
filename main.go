@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/renbw/cargo/handler"
 	"github.com/renbw/cargo/initialize"
+	"github.com/spf13/viper"
 
 	// mod file define the base package name eg `github.com/renbw/cargo`
 	// `componert` is the sub package name
@@ -21,29 +22,31 @@ import (
 )
 
 const (
-	BIND_ADDR    = "0.0.0.0"
-	PORT         = 8080
 	WAIT_TIMEOUT = time.Second * 5
 )
+
+// global conifg infomation
+var conf *viper.Viper
 
 func init() {
 	// init logrus
 	configLog()
+	// init conifg
+	conf = initialize.Conf
 }
 
 func main() {
-	conf := initialize.InitConfig()
-	host := conf.GetString("datasource.mysql.host")
-	log.Info("host ", host)
-	gin.SetMode(gin.DebugMode)
-	engine := configEngine()
+	engine := configEngine(conf)
 
 	v1 := engine.Group("/v1")
 	{
 		v1.GET("/ping", handler.Ping)
 	}
 
-	srv := &http.Server{Addr: fmt.Sprintf("%s:%d", BIND_ADDR, PORT), Handler: engine}
+	addr := conf.GetString("server.bind")
+	port := conf.GetInt32("server.port")
+
+	srv := &http.Server{Addr: fmt.Sprintf("%s:%d", addr, port), Handler: engine}
 	// start in one gorotine
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -51,7 +54,7 @@ func main() {
 		}
 	}()
 	// wait signal to stop
-	log.Info("server start at " + BIND_ADDR + "")
+	log.Info("server start at " + addr + "")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
@@ -103,7 +106,16 @@ func LogToFile() gin.HandlerFunc {
 
 // config the gin framework instance
 // includ midware cors time statistics and 404 cover
-func configEngine() *gin.Engine {
+func configEngine(conf *viper.Viper) *gin.Engine {
+	// read config file to gin engine mode
+	modeKey := "app.mode"
+	var mode string
+	if conf.IsSet(modeKey) {
+		mode = conf.GetString(modeKey)
+	} else {
+		mode = "release"
+	}
+	gin.SetMode(mode)
 	r := gin.New()
 	corsDefaultConf := cors.DefaultConfig()
 	corsDefaultConf.AllowAllOrigins = true

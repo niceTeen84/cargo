@@ -2,6 +2,10 @@ app:
   name: gin
   mode: debug
 
+server:
+  bind: 0.0.0.0
+  port: 8080
+
 datasource:
   mysql:
     host: 127.0.0.1

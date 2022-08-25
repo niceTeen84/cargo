@@ -7,11 +7,19 @@ import (
 	"github.com/spf13/viper"
 )
 
-func InitConfig() *viper.Viper {
+const (
+	FILE_NAME     = "config"
+	FILE_TYPE     = "yaml"
+	FILE_LOCATION = "."
+)
+
+var Conf *viper.Viper
+
+func init() {
 	v := viper.New()
-	v.SetConfigName("config")
-	v.SetConfigType("yaml")
-	v.AddConfigPath(".")
+	v.SetConfigName(FILE_NAME)
+	v.SetConfigType(FILE_TYPE)
+	v.AddConfigPath(FILE_LOCATION)
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			panic("Config file not found; ignore error if desired")
@@ -23,7 +31,5 @@ func InitConfig() *viper.Viper {
 		fmt.Print("config file changes")
 	})
 	v.WatchConfig()
-	keys := v.AllKeys()
-	fmt.Println(keys)
-	return v
+	Conf = v
 }
