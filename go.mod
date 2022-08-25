@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/Microsoft/go-winio v0.5.2 // indirect
+	github.com/appleboy/gin-jwt/v2 v2.8.0 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v20.10.17+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
@@ -18,6 +19,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jmoiron/sqlx v1.3.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
