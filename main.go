@@ -61,7 +61,6 @@ func main() {
 	<-quit
 
 	// shutdown gracefully
-
 	ctx, cancel := context.WithTimeout(context.Background(), WAIT_TIMEOUT)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
