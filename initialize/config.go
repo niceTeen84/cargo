@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -29,7 +29,7 @@ func init() {
 		}
 	}
 	v.OnConfigChange(func(event fsnotify.Event) {
-		logrus.Info(fmt.Sprintf("conifg file %s.%s changes", FILE_NAME, FILE_TYPE))
+		log.Info(fmt.Sprintf("conifg file %s.%s changes", FILE_NAME, FILE_TYPE))
 	})
 	v.WatchConfig()
 	Conf = v
